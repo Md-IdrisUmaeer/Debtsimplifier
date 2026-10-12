@@ -2,18 +2,22 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 
+// server setup
 const app = express();
-const server = http.createServer(app); // Socket.IO attaches to this
+const server = http.createServer(app);
 const io = new Server(server);
 
-io.on("connection", (socket) => {      // runs once per connected client
+// connection
+io.on("connection", (socket) => {
     console.log("connected", socket.id);
 
-    socket.on("message", (data) => {        // listen for an event from this client
-        socket.broadcast.emit("reply", `server got: ${data}`); // send back to this client only
+    // message
+    socket.on("message", (data) => {
+        socket.broadcast.emit("reply", `server got: ${data}`);
     });
 
+    // disconnect
     socket.on("disconnect", () => console.log("left", socket.id));
 });
 
-server.listen(3000); // note: server.listen, not app.listen
+server.listen(3000);

@@ -4,10 +4,11 @@ const http = require("http");
 const { Server } = require("socket.io");
 const app = express();
 const SECRET = "expresspractice";
-const server = http.createServer(app); // Socket.IO attaches to this
+const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 app.use(express.json())
 
+// login
 app.post('/login', (req, res) => {
     const { username } = req.body ?? {};
     if (!username) {
@@ -25,6 +26,7 @@ app.post('/login', (req, res) => {
 
 });
 
+// auth middleware
 function auth(req, res, next) {
     const authtoken = req.headers.authorization;
     if (!authtoken) {
@@ -48,6 +50,7 @@ function auth(req, res, next) {
     next();
 }
 
+// socket auth
 io.use((socket, next) => {
     try {
         socket.user = jwt.verify(socket.handshake.auth.token, SECRET);
@@ -57,18 +60,21 @@ io.use((socket, next) => {
     }
 });
 
+// connection and joining group
 io.on("connection", (socket) => {
-    socket.join(`user:${socket.user.user}`);   // personal room (your Q5)
+    socket.join(`user:${socket.user.user}`);
     socket.on("joinGroup", (groupId) => socket.join(`group:${groupId}`));
 });
 
 
+// profile
 app.get('/me', auth, (req, res, next) => {
     return res.status(200).json({ user: req.user });
 });
 
+// add expense
 app.post("/groups/:id/expenses", auth, (req, res) => {
-    const expense = { ...req.body, by: req.user.user };   // a real app saves to the DB here
+    const expense = { ...req.body, by: req.user.user };
     io.to(`group:${req.params.id}`).emit("expenseAdded", expense);
     res.status(201).json(expense);
 });

@@ -1,3 +1,4 @@
+// net balance
 function netBalance(expenses) {
     const balances = {};
     for (const expense of expenses) {
@@ -19,6 +20,7 @@ function netBalance(expenses) {
     return balances;
 }
 
+// settle debts
 function settle(balances) {
     const settlement = [];
     const debtors = (Object.entries(balances).filter(([key, value]) => value < 0)).sort((a, b) => a[1] - b[1]);

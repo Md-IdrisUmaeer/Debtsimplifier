@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const app = express();
 app.use(express.json())
 
+// login
 app.post('/login', (req, res) => {
     const { username } = req.body ?? {};
     if (!username) {
@@ -20,6 +21,7 @@ app.post('/login', (req, res) => {
 
 });
 
+// auth middleware
 function auth(req, res, next) {
     const authtoken = req.headers.authorization;
     if (!authtoken) {
@@ -42,6 +44,7 @@ function auth(req, res, next) {
     }
     next();
 }
+// profile
 app.get('/me', auth, (req, res, next) => {
     return res.status(200).json({ user: req.user });
 });
